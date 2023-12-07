@@ -48,10 +48,10 @@ public final class FlutterCompassPlugin implements FlutterPlugin, StreamHandler 
     @Nullable
     private Sensor magneticFieldSensor;
 
-    private float[] truncatedRotationVectorValue = new float[4];
-    private float[] rotationMatrix = new float[9];
+    private final float[] truncatedRotationVectorValue = new float[4];
+    private final float[] rotationMatrix = new float[9];
     private float[] rotationVectorValue;
-    private float lastHeading;
+
     private int lastAccuracySensorStatus;
 
     private long compassUpdateNextTimestamp;
@@ -290,6 +290,9 @@ public final class FlutterCompassPlugin implements FlutterPlugin, StreamHandler 
 
                 double[] v = new double[3];
                 v[0] = Math.toDegrees(orientation[0]);
+                if (v[0] < 0) {
+                    v[0] += 360.0;
+                }
                 v[2] = getAccuracy();
                 // The x-axis is all we care about here.
                 notifyCompassChangeListeners(v);
@@ -300,7 +303,6 @@ public final class FlutterCompassPlugin implements FlutterPlugin, StreamHandler 
 
             private void notifyCompassChangeListeners(double[] heading) {
                 events.success(heading);
-                lastHeading = (float) heading[0];
             }
 
             private double getAccuracy() {
